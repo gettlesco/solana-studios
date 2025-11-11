@@ -1,31 +1,38 @@
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-          function handleSubmit(e) {
-            e.preventDefault();
-            const form = e.target;
-            const data = new FormData(form);
-
-            fetch(form.action, { method: "POST", body: data })
-              .then(r => r.json())
-              .then(json => {
-                alert(json.message);
-                form.reset();
-              })
-              .catch(() => alert("Error — DM @gettles on X"));
-
-            return false;
-          }
-        `,
-        }}
-      />
 import Head from 'next/head';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
+type FormState = {
+  name: string;
+  email: string;
+  date: string;
+  time: string;
+  link: string;
+  wallet: string;
+  purpose: string;
+  agreed: boolean;
+};
+
 export default function StudioVisit() {
+  const [form, setForm] = useState<FormState>({
+    name: '',
+    email: '',
+    date: '',
+    time: '',
+    link: '',
+    wallet: '',
+    purpose: '',
+    agreed: false,
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [message, setMessage] = useState<string>('');
+  const [messageType, setMessageType] = useState<'success' | 'error' | ''>('');
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
+
+  const setField = (key: keyof FormState, value: string | boolean) => {
+    setForm(prev => ({ ...prev, [key]: value }));
+  };
 
   useEffect(() => {
     if (!galleryOpen) return;
@@ -85,6 +92,52 @@ export default function StudioVisit() {
       counters.forEach(animateCounter);
     }
   }, []);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!form.agreed) {
+      setMessage('Please confirm that this is an interest form, not a confirmed booking.');
+      setMessageType('error');
+      return;
+    }
+
+    const error = (() => {
+      if (!form.name.trim()) return 'Please enter your name';
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(form.email)) return 'Please enter a valid email';
+      if (!form.date) return 'Please select a date';
+      if (!form.time) return 'Please select a time window';
+      if (!form.purpose.trim()) return 'Please tell us what you want to make';
+      return null;
+    })();
+
+    if (error) {
+      setMessage(error);
+      setMessageType('error');
+      return;
+    }
+
+    setSubmitting(true);
+    setMessage('');
+    setMessageType('');
+
+    setTimeout(() => {
+      setMessage("Thanks! Your interest has been recorded. We'll follow up via email soon.");
+      setMessageType('success');
+      setForm({
+        name: '',
+        email: '',
+        date: '',
+        time: '',
+        link: '',
+        wallet: '',
+        purpose: '',
+        agreed: false,
+      });
+      setSubmitting(false);
+    }, 600);
+  };
 
   const founders = [
     {
@@ -426,166 +479,303 @@ export default function StudioVisit() {
                   We're a creator-first content studio, fulfilling dreams in neon pink & touch-grass-green! We'd love to host you, New York! Please fill out this interest form & we'll reply asap with available times, details, and more info on how to visit.
                 </p>
 
-                <form
-                  action="https://script.google.com/macros/s/AKfycbzaiWKOdWQsBLbvPotQfoyYcOMdjzz_2-NJVk7XRCAJU0eyWI7Jp8fLUGZeUNipGsPP_w/exec"
-                  method="POST"
-                  id="solana-form"
-                  onSubmit={e => {
-                    e.preventDefault();
-                    if (typeof window !== 'undefined' && typeof (window as any).handleSubmit === 'function') {
-                      (window as any).handleSubmit(e);
-                    }
-                  }}
-                  style={{ display: 'grid', gap: 14 }}
-                >
-                  <input
-                    type="text"
-                    name="fullname"
-                    placeholder="Full name"
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '12px 14px',
-                      borderRadius: 12,
-                      border: '1px solid rgba(255,255,255,.08)',
-                      background: 'rgba(255,255,255,.02)',
-                      color: 'var(--text)',
-                      outline: 'none',
-                      transition: '.2s border, .2s box-shadow',
-                    }}
-                  />
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '12px 14px',
-                      borderRadius: 12,
-                      border: '1px solid rgba(255,255,255,.08)',
-                      background: 'rgba(255,255,255,.02)',
-                      color: 'var(--text)',
-                      outline: 'none',
-                      transition: '.2s border, .2s box-shadow',
-                    }}
-                  />
-                  <input
-                    type="date"
-                    name="date"
-                    placeholder="Preferred date"
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '12px 14px',
-                      borderRadius: 12,
-                      border: '1px solid rgba(255,255,255,.08)',
-                      background: 'rgba(255,255,255,.02)',
-                      color: 'var(--text)',
-                      outline: 'none',
-                      transition: '.2s border, .2s box-shadow',
-                    }}
-                  />
-                  <select
-                    name="timewindow"
-                    required
-                    defaultValue=""
-                    style={{
-                      width: '100%',
-                      padding: '12px 14px',
-                      borderRadius: 12,
-                      border: '1px solid rgba(255,255,255,.08)',
-                      background: 'rgba(255,255,255,.02)',
-                      color: 'var(--text)',
-                      outline: 'none',
-                      transition: '.2s border, .2s box-shadow',
-                    }}
-                  >
-                    <option value="" disabled>
-                      Time window
-                    </option>
-                    <option value="Morning">Morning</option>
-                    <option value="Afternoon">Afternoon</option>
-                    <option value="Evening">Evening</option>
-                  </select>
-                  <input
-                    type="url"
-                    name="primarylink"
-                    placeholder="Primary link (X/IG/site)"
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '12px 14px',
-                      borderRadius: 12,
-                      border: '1px solid rgba(255,255,255,.08)',
-                      background: 'rgba(255,255,255,.02)',
-                      color: 'var(--text)',
-                      outline: 'none',
-                      transition: '.2s border, .2s box-shadow',
-                    }}
-                  />
-                  <input
-                    type="text"
-                    name="wallet"
-                    placeholder="Solana wallet (optional)"
-                    style={{
-                      width: '100%',
-                      padding: '12px 14px',
-                      borderRadius: 12,
-                      border: '1px solid rgba(255,255,255,.08)',
-                      background: 'rgba(255,255,255,.02)',
-                      color: 'var(--text)',
-                      outline: 'none',
-                      transition: '.2s border, .2s box-shadow',
-                    }}
-                  />
-                  <textarea
-                    name="message"
-                    placeholder="What do you want to make?"
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '12px 14px',
-                      borderRadius: 12,
-                      border: '1px solid rgba(255,255,255,.08)',
-                      background: 'rgba(255,255,255,.02)',
-                      color: 'var(--text)',
-                      outline: 'none',
-                      transition: '.2s border, .2s box-shadow',
-                      minHeight: 110,
-                      resize: 'vertical',
-                      fontFamily: 'inherit',
-                    }}
-                  />
+                <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 14 }} noValidate>
+                  <div className="form-row" style={{ display: 'grid', gap: 14, gridTemplateColumns: '1fr 1fr' }}>
+                    <div>
+                      <label style={{ fontSize: '.95rem', display: 'block', marginBottom: 4 }}>
+                        Full name
+                        <br />
+                        <input
+                          type="text"
+                          name="name"
+                          value={form.name}
+                          onChange={e => setField('name', e.target.value)}
+                          placeholder="Ada Lovelace"
+                          required
+                          style={{
+                            width: '100%',
+                            padding: '12px 14px',
+                            borderRadius: 12,
+                            border: '1px solid rgba(255,255,255,.08)',
+                            background: 'rgba(255,255,255,.02)',
+                            color: 'var(--text)',
+                            outline: 'none',
+                            transition: '.2s border, .2s box-shadow',
+                            marginTop: 4,
+                          }}
+                          onFocus={e => {
+                            e.target.style.borderColor = 'rgba(22,255,227,.5)';
+                            e.target.style.boxShadow = '0 0 0 4px rgba(22,255,227,.14)';
+                          }}
+                          onBlur={e => {
+                            e.target.style.borderColor = 'rgba(255,255,255,.08)';
+                            e.target.style.boxShadow = 'none';
+                          }}
+                        />
+                      </label>
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '.95rem', display: 'block', marginBottom: 4 }}>
+                        Email
+                        <br />
+                        <input
+                          type="email"
+                          name="email"
+                          value={form.email}
+                          onChange={e => setField('email', e.target.value)}
+                          placeholder="you@solana.com"
+                          required
+                          style={{
+                            width: '100%',
+                            padding: '12px 14px',
+                            borderRadius: 12,
+                            border: '1px solid rgba(255,255,255,.08)',
+                            background: 'rgba(255,255,255,.02)',
+                            color: 'var(--text)',
+                            outline: 'none',
+                            transition: '.2s border, .2s box-shadow',
+                            marginTop: 4,
+                          }}
+                          onFocus={e => {
+                            e.target.style.borderColor = 'rgba(22,255,227,.5)';
+                            e.target.style.boxShadow = '0 0 0 4px rgba(22,255,227,.14)';
+                          }}
+                          onBlur={e => {
+                            e.target.style.borderColor = 'rgba(255,255,255,.08)';
+                            e.target.style.boxShadow = 'none';
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="form-row" style={{ display: 'grid', gap: 14, gridTemplateColumns: '1fr 1fr' }}>
+                    <div>
+                      <label style={{ fontSize: '.95rem', display: 'block', marginBottom: 4 }}>
+                        Preferred date
+                        <br />
+                        <input
+                          type="date"
+                          name="date"
+                          value={form.date}
+                          onChange={e => setField('date', e.target.value)}
+                          required
+                          min={new Date().toISOString().split('T')[0]}
+                          style={{
+                            width: '100%',
+                            padding: '12px 14px',
+                            borderRadius: 12,
+                            border: '1px solid rgba(255,255,255,.08)',
+                            background: 'rgba(255,255,255,.02)',
+                            color: 'var(--text)',
+                            outline: 'none',
+                            transition: '.2s border, .2s box-shadow',
+                            marginTop: 4,
+                          }}
+                          onFocus={e => {
+                            e.target.style.borderColor = 'rgba(22,255,227,.5)';
+                            e.target.style.boxShadow = '0 0 0 4px rgba(22,255,227,.14)';
+                          }}
+                          onBlur={e => {
+                            e.target.style.borderColor = 'rgba(255,255,255,.08)';
+                            e.target.style.boxShadow = 'none';
+                          }}
+                        />
+                      </label>
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '.95rem', display: 'block', marginBottom: 4 }}>
+                        Time window
+                        <br />
+                        <select
+                          name="time"
+                          value={form.time}
+                          onChange={e => setField('time', e.target.value)}
+                          required
+                          style={{
+                            width: '100%',
+                            padding: '12px 14px',
+                            borderRadius: 12,
+                            border: '1px solid rgba(255,255,255,.08)',
+                            background: 'rgba(255,255,255,.02)',
+                            color: 'var(--text)',
+                            outline: 'none',
+                            transition: '.2s border, .2s box-shadow',
+                            marginTop: 4,
+                          }}
+                          onFocus={e => {
+                            e.target.style.borderColor = 'rgba(22,255,227,.5)';
+                            e.target.style.boxShadow = '0 0 0 4px rgba(22,255,227,.14)';
+                          }}
+                          onBlur={e => {
+                            e.target.style.borderColor = 'rgba(255,255,255,.08)';
+                            e.target.style.boxShadow = 'none';
+                          }}
+                        >
+                          <option value="">Select…</option>
+                          <option value="Morning">Morning</option>
+                          <option value="Afternoon">Afternoon</option>
+                          <option value="Evening">Evening</option>
+                        </select>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="form-row" style={{ display: 'grid', gap: 14, gridTemplateColumns: '1fr 1fr' }}>
+                    <div>
+                      <label style={{ fontSize: '.95rem', display: 'block', marginBottom: 4 }}>
+                        Primary link (X/IG/site)
+                        <br />
+                        <input
+                          type="url"
+                          name="link"
+                          value={form.link}
+                          onChange={e => setField('link', e.target.value)}
+                          placeholder="https://twitter.com/yourhandle"
+                          style={{
+                            width: '100%',
+                            padding: '12px 14px',
+                            borderRadius: 12,
+                            border: '1px solid rgba(255,255,255,.08)',
+                            background: 'rgba(255,255,255,.02)',
+                            color: 'var(--text)',
+                            outline: 'none',
+                            transition: '.2s border, .2s box-shadow',
+                            marginTop: 4,
+                          }}
+                          onFocus={e => {
+                            e.target.style.borderColor = 'rgba(22,255,227,.5)';
+                            e.target.style.boxShadow = '0 0 0 4px rgba(22,255,227,.14)';
+                          }}
+                          onBlur={e => {
+                            e.target.style.borderColor = 'rgba(255,255,255,.08)';
+                            e.target.style.boxShadow = 'none';
+                          }}
+                        />
+                      </label>
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '.95rem', display: 'block', marginBottom: 4 }}>
+                        Solana wallet (optional)
+                        <br />
+                        <input
+                          type="text"
+                          name="wallet"
+                          value={form.wallet}
+                          onChange={e => setField('wallet', e.target.value)}
+                          placeholder="Your public address"
+                          style={{
+                            width: '100%',
+                            padding: '12px 14px',
+                            borderRadius: 12,
+                            border: '1px solid rgba(255,255,255,.08)',
+                            background: 'rgba(255,255,255,.02)',
+                            color: 'var(--text)',
+                            outline: 'none',
+                            transition: '.2s border, .2s box-shadow',
+                            marginTop: 4,
+                          }}
+                          onFocus={e => {
+                            e.target.style.borderColor = 'rgba(22,255,227,.5)';
+                            e.target.style.boxShadow = '0 0 0 4px rgba(22,255,227,.14)';
+                          }}
+                          onBlur={e => {
+                            e.target.style.borderColor = 'rgba(255,255,255,.08)';
+                            e.target.style.boxShadow = 'none';
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '.95rem', display: 'block', marginBottom: 4 }}>
+                      What do you want to make?
+                      <br />
+                      <textarea
+                        name="purpose"
+                        value={form.purpose}
+                        onChange={e => setField('purpose', e.target.value)}
+                        placeholder="Podcast, photoshoot, demo day teaser, dev interview, live music, etc."
+                        required
+                        rows={3}
+                        style={{
+                          width: '100%',
+                          padding: '12px 14px',
+                          borderRadius: 12,
+                          border: '1px solid rgba(255,255,255,.08)',
+                          background: 'rgba(255,255,255,.02)',
+                          color: 'var(--text)',
+                          outline: 'none',
+                          transition: '.2s border, .2s box-shadow',
+                          marginTop: 4,
+                          minHeight: 110,
+                          resize: 'vertical',
+                          fontFamily: 'inherit',
+                        }}
+                        onFocus={e => {
+                          e.target.style.borderColor = 'rgba(22,255,227,.5)';
+                          e.target.style.boxShadow = '0 0 0 4px rgba(22,255,227,.14)';
+                        }}
+                        onBlur={e => {
+                          e.target.style.borderColor = 'rgba(255,255,255,.08)';
+                          e.target.style.boxShadow = 'none';
+                        }}
+                      />
+                    </label>
+                  </div>
+
                   <label
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 8,
-                      fontSize: 14,
-                      color: '#b7d6df',
-                    }}
+                    style={{ fontSize: '.8rem', color: '#b7d6df', display: 'flex', alignItems: 'center', gap: 8 }}
                   >
-                    <input type="checkbox" name="understand" value="1" required style={{ margin: 0 }} />
+                    <input
+                      type="checkbox"
+                      checked={form.agreed}
+                      onChange={e => setField('agreed', e.target.checked)}
+                      required
+                      style={{ margin: 0 }}
+                    />
                     I understand this is an interest form and not a confirmed booking.
                   </label>
+
                   <button
                     type="submit"
+                    disabled={submitting}
                     style={{
-                      cursor: 'pointer',
+                      cursor: submitting ? 'not-allowed' : 'pointer',
                       fontWeight: 800,
                       letterSpacing: '.4px',
                       padding: '14px 18px',
                       borderRadius: 14,
                       border: 'none',
                       color: '#06060b',
-                      background: 'linear-gradient(90deg, var(--neon-pink), #ff7bfd, var(--teal))',
+                      background: submitting
+                        ? 'rgba(255,255,255,.3)'
+                        : 'linear-gradient(90deg, var(--neon-pink), #ff7bfd, var(--teal))',
                       filter: 'drop-shadow(0 0 18px rgba(255,49,247,.45))',
                       transition: 'opacity .2s',
                     }}
                   >
-                    Submit interest
+                    {submitting ? 'Submitting...' : 'Submit interest →'}
                   </button>
+
+                  {message && (
+                    <div
+                      style={{
+                        padding: 8,
+                        borderRadius: 8,
+                        fontSize: '.8rem',
+                        color: messageType === 'success' ? '#a6e6d3' : '#ffb3b3',
+                        background:
+                          messageType === 'success' ? 'rgba(52,255,127,.15)' : 'rgba(255,49,247,.15)',
+                        border: `1px solid ${
+                          messageType === 'success' ? 'rgba(52,255,127,.4)' : 'rgba(255,49,247,.4)'
+                        }`,
+                      }}
+                    >
+                      {message}
+                    </div>
+                  )}
                 </form>
               </div>
             </div>
@@ -917,27 +1107,6 @@ export default function StudioVisit() {
             </a>
           </div>
         </footer>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.handleSubmit = function handleSubmit(e) {
-                e.preventDefault();
-                const form = e.target;
-                const data = new FormData(form);
-
-                fetch(form.action, { method: "POST", body: data })
-                  .then(r => r.json())
-                  .then(json => {
-                    alert(json.message);
-                    form.reset();
-                  })
-                  .catch(() => alert("Error — DM @gettles on X"));
-
-                return false;
-              };
-            `,
-          }}
-        />
       </div>
     </>
   );
