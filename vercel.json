@@ -1,5 +1,14 @@
 {
   "framework": "nextjs",
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "out"
+      }
+    }
+  ],
   "installCommand": "pnpm install",
   "buildCommand": "pnpm run build",
   "outputDirectory": "out"
