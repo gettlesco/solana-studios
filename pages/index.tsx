@@ -1,31 +1,60 @@
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-          function handleSubmit(e) {
-            e.preventDefault();
-            const form = e.target;
-            const data = new FormData(form);
-
-            fetch(form.action, { method: "POST", body: data })
-              .then(r => r.json())
-              .then(json => {
-                alert(json.message);
-                form.reset();
-              })
-              .catch(() => alert("Error — DM @gettles on X"));
-
-            return false;
-          }
-        `,
-        }}
-      />
 import Head from 'next/head';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type FormEvent } from 'react';
 
 export default function StudioVisit() {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const defaultSuccessMessage = 'Response recorded';
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(form.action, {
+        method: form.method || 'POST',
+        body: formData,
+      });
+
+      if (response.type === 'opaque') {
+        alert(defaultSuccessMessage);
+        form.reset();
+        return;
+      }
+
+      if (!response.ok) {
+        const errorBody = await response.text();
+        throw new Error(errorBody || `Request failed with status ${response.status}`);
+      }
+
+      const contentType = response.headers.get('content-type') ?? '';
+      let message: string | undefined;
+
+      if (contentType.includes('application/json')) {
+        const json = await response.json();
+        message =
+          json && typeof json === 'object' && 'message' in json
+            ? (json as { message?: string }).message
+            : undefined;
+      } else {
+        const text = await response.text();
+        message = text ? text.trim() : undefined;
+      }
+
+      alert(message || defaultSuccessMessage);
+      form.reset();
+    } catch (error) {
+      console.error('Failed to submit Solana Studios form', error);
+      alert('Something went wrong submitting the form — please DM @gettles on X.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (!galleryOpen) return;
@@ -427,15 +456,10 @@ export default function StudioVisit() {
                 </p>
 
                 <form
-                  action="https://script.google.com/macros/s/AKfycbzaiWKOdWQsBLbvPotQfoyYcOMdjzz_2-NJVk7XRCAJU0eyWI7Jp8fLUGZeUNipGsPP_w/exec"
+                  action="https://script.google.com/macros/s/AKfycbw-UMcSZutiwMKTJ7Tu5S0LhrE3gHZO-ZLX3ePt-5zFpdsGoPToU6HaNoVt5opRW6lGcA/exec"
                   method="POST"
                   id="solana-form"
-                  onSubmit={e => {
-                    e.preventDefault();
-                    if (typeof window !== 'undefined' && typeof (window as any).handleSubmit === 'function') {
-                      (window as any).handleSubmit(e);
-                    }
-                  }}
+                  onSubmit={handleSubmit}
                   style={{ display: 'grid', gap: 14 }}
                 >
                   <input
@@ -571,8 +595,9 @@ export default function StudioVisit() {
                   </label>
                   <button
                     type="submit"
+                    disabled={isSubmitting}
                     style={{
-                      cursor: 'pointer',
+                      cursor: isSubmitting ? 'not-allowed' : 'pointer',
                       fontWeight: 800,
                       letterSpacing: '.4px',
                       padding: '14px 18px',
@@ -582,9 +607,10 @@ export default function StudioVisit() {
                       background: 'linear-gradient(90deg, var(--neon-pink), #ff7bfd, var(--teal))',
                       filter: 'drop-shadow(0 0 18px rgba(255,49,247,.45))',
                       transition: 'opacity .2s',
+                      opacity: isSubmitting ? 0.7 : 1,
                     }}
                   >
-                    Submit interest
+                    {isSubmitting ? 'Submitting...' : 'Submit interest'}
                   </button>
                 </form>
               </div>
@@ -917,27 +943,6 @@ export default function StudioVisit() {
             </a>
           </div>
         </footer>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.handleSubmit = function handleSubmit(e) {
-                e.preventDefault();
-                const form = e.target;
-                const data = new FormData(form);
-
-                fetch(form.action, { method: "POST", body: data })
-                  .then(r => r.json())
-                  .then(json => {
-                    alert(json.message);
-                    form.reset();
-                  })
-                  .catch(() => alert("Error — DM @gettles on X"));
-
-                return false;
-              };
-            `,
-          }}
-        />
       </div>
     </>
   );
