@@ -221,10 +221,12 @@ export default function StudioVisit() {
                     textShadow: '0 0 14px rgba(255,49,247,.45), 0 0 40px rgba(255,49,247,.25)',
                   }}
                 >
-                  Visit Interest @ Solana HQ
+                  Visit Interest @ Solana Studios
                 </div>
                 <p style={{ color: 'var(--muted)', margin: '6px 0 18px' }}>
-                  We're a creator-first content studio, fulfilling dreams in neon pink & touch-grass-green! We'd love to host you, New York! Please fill out this interest form & we'll reply asap with available times, details, and more info on how to visit.
+                  We're a creator-first content studio, accelerating non-CMOs for Solana. We'd love to host
+                  you at our New York City studio. Please fill out this interest form & we'll reach out asap
+                  with available times, details, and more info on how to visit.
                 </p>
 
                 <form
