@@ -94,6 +94,52 @@ export default function StudioVisit() {
           }
         }
 
+        .booking-shell {
+          --shell-padding: clamp(20px, 4vw, 28px);
+        }
+
+        .booking-card {
+          --card-padding: clamp(18px, 3.6vw, 26px);
+        }
+
+        .booking-form {
+          --form-gap: 14px;
+          --field-padding: 12px 14px;
+          --button-padding: 14px 18px;
+        }
+
+        .booking-form input,
+        .booking-form select,
+        .booking-form textarea {
+          color: var(--text);
+          color-scheme: dark;
+        }
+
+        .booking-form input[type='date']::-webkit-calendar-picker-indicator {
+          filter: invert(1);
+          opacity: 0.75;
+        }
+
+        @media (max-width: 600px) {
+          .booking-shell {
+            --shell-padding: 18px;
+          }
+
+          .booking-card {
+            --card-padding: 18px;
+          }
+
+          .booking-form {
+            --form-gap: 12px;
+            --field-padding: 14px 16px;
+            --button-padding: 16px;
+          }
+
+          .booking-submit {
+            width: 100%;
+          }
+        }
+
         @keyframes spin {
           to {
             transform: rotate(1turn);
@@ -137,17 +183,19 @@ export default function StudioVisit() {
         <main className="max-w-[1200px] mx-auto px-4 md:px-6 py-6 md:py-8">
           <section className="grid grid-cols-1 md:grid-cols-[1.2fr_0.9fr] gap-8 md:gap-8 items-center pt-6 md:pt-10 pb-6 md:pb-8">
             <div
-              className="relative p-4 md:p-6 rounded-3xl"
+              className="relative rounded-3xl booking-shell"
               style={{
                 background:
                   'conic-gradient(from 180deg at 50% 50%, rgba(52,255,127,.12), rgba(18,200,255,.12), rgba(138,82,255,.12), rgba(255,49,247,.12), rgba(52,255,127,.12))',
                 boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.05), var(--shadow)',
+                padding: 'var(--shell-padding, 24px)',
               }}
             >
               <div
-                className="rounded-2xl p-4 md:p-6 relative"
+                className="rounded-2xl relative booking-card"
                 style={{
                   background: '#07070c',
+                  padding: 'var(--card-padding, 22px)',
                 }}
               >
                 <h1
@@ -180,11 +228,12 @@ export default function StudioVisit() {
                 </p>
 
                 <form
+                  className="booking-form"
                   action="https://script.google.com/macros/s/AKfycbw-UMcSZutiwMKTJ7Tu5S0LhrE3gHZO-ZLX3ePt-5zFpdsGoPToU6HaNoVt5opRW6lGcA/exec"
                   method="POST"
                   id="solana-form"
                   onSubmit={handleSubmit}
-                  style={{ display: 'grid', gap: 14 }}
+                  style={{ display: 'grid', gap: 'var(--form-gap, 14px)' }}
                 >
                   <input
                     type="text"
@@ -193,7 +242,7 @@ export default function StudioVisit() {
                     required
                     style={{
                       width: '100%',
-                      padding: '12px 14px',
+                      padding: 'var(--field-padding, 12px 14px)',
                       borderRadius: 12,
                       border: '1px solid rgba(255,255,255,.08)',
                       background: 'rgba(255,255,255,.02)',
@@ -209,7 +258,7 @@ export default function StudioVisit() {
                     required
                     style={{
                       width: '100%',
-                      padding: '12px 14px',
+                      padding: 'var(--field-padding, 12px 14px)',
                       borderRadius: 12,
                       border: '1px solid rgba(255,255,255,.08)',
                       background: 'rgba(255,255,255,.02)',
@@ -225,7 +274,7 @@ export default function StudioVisit() {
                     required
                     style={{
                       width: '100%',
-                      padding: '12px 14px',
+                      padding: 'var(--field-padding, 12px 14px)',
                       borderRadius: 12,
                       border: '1px solid rgba(255,255,255,.08)',
                       background: 'rgba(255,255,255,.02)',
@@ -240,7 +289,7 @@ export default function StudioVisit() {
                     defaultValue=""
                     style={{
                       width: '100%',
-                      padding: '12px 14px',
+                      padding: 'var(--field-padding, 12px 14px)',
                       borderRadius: 12,
                       border: '1px solid rgba(255,255,255,.08)',
                       background: 'rgba(255,255,255,.02)',
@@ -263,7 +312,7 @@ export default function StudioVisit() {
                     required
                     style={{
                       width: '100%',
-                      padding: '12px 14px',
+                      padding: 'var(--field-padding, 12px 14px)',
                       borderRadius: 12,
                       border: '1px solid rgba(255,255,255,.08)',
                       background: 'rgba(255,255,255,.02)',
@@ -278,7 +327,7 @@ export default function StudioVisit() {
                     placeholder="Solana wallet (optional)"
                     style={{
                       width: '100%',
-                      padding: '12px 14px',
+                      padding: 'var(--field-padding, 12px 14px)',
                       borderRadius: 12,
                       border: '1px solid rgba(255,255,255,.08)',
                       background: 'rgba(255,255,255,.02)',
@@ -293,7 +342,7 @@ export default function StudioVisit() {
                     required
                     style={{
                       width: '100%',
-                      padding: '12px 14px',
+                      padding: 'var(--field-padding, 12px 14px)',
                       borderRadius: 12,
                       border: '1px solid rgba(255,255,255,.08)',
                       background: 'rgba(255,255,255,.02)',
@@ -320,11 +369,12 @@ export default function StudioVisit() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
+                    className="booking-submit"
                     style={{
                       cursor: isSubmitting ? 'not-allowed' : 'pointer',
                       fontWeight: 800,
                       letterSpacing: '.4px',
-                      padding: '14px 18px',
+                      padding: 'var(--button-padding, 14px 18px)',
                       borderRadius: 14,
                       border: 'none',
                       color: '#06060b',
