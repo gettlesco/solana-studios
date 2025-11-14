@@ -69,7 +69,7 @@ export default function StudioVisit() {
       <Head>
         <title>Solana Studios — Visitor Interest Form</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="icon" href="/SOLANA STUDIOS (1).png" />
+        <link rel="icon" type="image/png" href="/Solana_logo.png" />
       </Head>
 
       <style jsx global>{`
