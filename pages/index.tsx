@@ -1,9 +1,19 @@
 import Head from 'next/head';
 import Image from 'next/image';
-import { useCallback, useState, type FormEvent } from 'react';
+import { useCallback, useState, useEffect, type FormEvent } from 'react';
 
 export default function StudioVisit() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
+
+  useEffect(() => {
+    if (showMessage) {
+      const timer = setTimeout(() => {
+        setShowMessage(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showMessage]);
 
   const handleSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -20,7 +30,7 @@ export default function StudioVisit() {
       });
 
       if (response.type === 'opaque') {
-        alert(defaultSuccessMessage);
+        setShowMessage(true);
         form.reset();
         return;
       }
@@ -44,7 +54,7 @@ export default function StudioVisit() {
         message = text ? text.trim() : undefined;
       }
 
-      alert(message || defaultSuccessMessage);
+      setShowMessage(true);
       form.reset();
     } catch (error) {
       console.error('Failed to submit Solana Studios form', error);
@@ -59,6 +69,7 @@ export default function StudioVisit() {
       <Head>
         <title>Solana Studios — Visitor Interest Form</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" href="/SOLANA STUDIOS (1).png" />
       </Head>
 
       <style jsx global>{`
@@ -74,6 +85,10 @@ export default function StudioVisit() {
           --cyan: #12c8ff;
           --grass: #38e47a;
           --shadow: 0 0 30px rgba(255, 49, 247, 0.35), 0 0 12px rgba(22, 255, 227, 0.25);
+        }
+
+        html {
+          color-scheme: dark;
         }
 
         body {
@@ -145,6 +160,7 @@ export default function StudioVisit() {
             transform: rotate(1turn);
           }
         }
+
       `}</style>
 
       <div
@@ -308,7 +324,7 @@ export default function StudioVisit() {
                     <option value="Evening">Evening</option>
                   </select>
                   <input
-                    type="url"
+                    type="text"
                     name="primarylink"
                     placeholder="Primary link (X/IG/site)"
                     required
@@ -388,6 +404,11 @@ export default function StudioVisit() {
                   >
                     {isSubmitting ? 'Submitting...' : 'Submit interest'}
                   </button>
+                  {showMessage && (
+                    <div style={{ textAlign: 'center', color: 'var(--text)', fontSize: 15 }}>
+                      Response recorded
+                    </div>
+                  )}
                 </form>
               </div>
             </div>
