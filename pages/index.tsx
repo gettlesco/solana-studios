@@ -130,11 +130,6 @@ export default function StudioVisit() {
           color-scheme: dark;
         }
 
-        .booking-form input[type='date']::-webkit-calendar-picker-indicator {
-          filter: invert(1);
-          opacity: 0.75;
-        }
-
         @media (max-width: 600px) {
           .booking-shell {
             --shell-padding: 18px;
@@ -286,9 +281,9 @@ export default function StudioVisit() {
                     }}
                   />
                   <input
-                    type="date"
+                    type="text"
                     name="date"
-                    placeholder="Preferred date"
+                    placeholder="Preferred date (MM DD YYYY)"
                     required
                     style={{
                       width: '100%',
